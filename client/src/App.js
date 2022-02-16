@@ -6,16 +6,16 @@ function App() {
   const [movieName, setMovieName] = useState('')
   const [movieReview, setReview] = useState('')
   const [movieList, setMovieList] = useState([])
+  const [newReview, setNewReview] = useState("")
+
   const submitReview = () =>{
     
     Axios.post("http://localhost:3001/api/create", 
     {
       movieName: movieName, 
       movieReview:movieReview
-    }).then(()=>{
-      alert("successful insert");
     })
-    console.log(movieName)
+      setMovieList([...movieList, {movieName:movieName, movieReview:movieReview}]);
   };
 
   useEffect(()=>{
@@ -27,6 +27,18 @@ function App() {
       console.log("problem here", error);
     });
   },[])
+
+  const deleteMovie = (movie) =>{
+        Axios.delete(`http://localhost:3001/api/delete/${movie}`)
+  } 
+  
+  const updateReview = (movie) =>{
+    Axios.put("http://localhost:3001/api/update", {
+      movieName: movie,
+      movieReview: newReview
+    });
+    setNewReview("")
+  };
 
   return (
     <div className="App">
@@ -41,8 +53,11 @@ function App() {
       }}/>
       <button onClick={submitReview}>Submit</button>
       {movieList.map((val)=>{
-        return <div><h4>Movie Name: {val.movieName}</h4>
-          <h4>Review: {val.movieReview}</h4></div>
+        return <div className='card'><h4>{val.movieName}</h4>
+          <h4>Review: {val.movieReview}</h4>
+          <button onClick={() => {deleteMovie(val.movieName)}}>delete</button>
+          <input type= "text" onChange={(e)=>{setNewReview (e.target.value)}}/>
+          <button onClick={() => {updateReview(val.movieName)}}>Update Review</button></div>
       })}
     </div>
   );
