@@ -5,7 +5,7 @@ const cors = require("cors");
 const mysql = require("mysql");
 
 
-const db= mysql.createPool({
+const db= mysql.createConnection({
     host: "localhost",
     user:"root",
     password:"epicodus",
@@ -58,7 +58,39 @@ app.put("/api/update", (req, res)=>{
         if(err) console.log(err);
     })
 })
+
+app.post("/api/register", (req, res)=>{
+    const userName = req.body.userName;
+    const password = req.body.password;
+
+    const sqlReg = "INSERT INTO users (userName, password) VALUES (?,?);"
+    
+    db.query(sqlReg, [userName, password], (err, result)=>{
+    console.log(err);
+    }); 
+});
+
+app.post("/api/login", (req, res)=>{
+    const userName = req.body.userName;
+    const password = req.body.password;
+
+    const sqlLog = "SELECT * FROM users WHERE userName = ? AND password =?;"
+    
+    db.query(sqlLog, [userName, password], (err, result)=>{
+        if(err){
+            res.send({err :err})
+        }
+        if(result > 0){
+            res.send(result);
+        }else{
+            res.send({messege: "wrong combation"});
+        }
+    }); 
+});
+
+
 app.listen(PORT,() => {
     console.log(`running on port ${PORT}`);
 });
+
 
